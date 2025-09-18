@@ -1,0 +1,23 @@
+http:
+  listener:
+    port: "8081"
+    host: "localhost"
+    path: "fastGo/{serviceType}"
+    
+db:
+  oracle:
+    host: "localhost"
+    port: "1521"
+    user: "admin"
+    password: "admin"
+    instance: ""
+    service: ""
+    
+snowflake:
+  accountName: "FKGRCCP-ES23892"
+  warehouse: "COMPUTE_WH"
+  database: "MSTECH"
+  schema: "BFS"
+  user: "msrao2829"
+  password: "Deloitte@266227"
+  role: "ACCOUNTADMIN"

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="fastgo-external-sys-apiFlow" doc:id="c95d1c07-9c1b-4258-a440-45cd5f2f4e17" >
+		<http:listener doc:name="Listener" doc:id="a0748069-ab0d-4df3-ae53-cc76fb4b8109" config-ref="HTTP_Listener_config" path="/${http.listener.path}"/>
+		<logger level="INFO" doc:name="Logger" doc:id="fd3cfc9d-3ac0-4401-b5ba-1a54646b865c" message="-----Request Recieved for fastGo External System for TransactionId-----#[attributes.headers.transactionId]"/>
+		<ee:transform doc:name="Transform Message" doc:id="49e7f531-460a-4428-8e1f-52cd5306c5b3" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="serviceType" ><![CDATA[%dw 2.0
+output application/json
+---
+attributes.uriParams.serviceType]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="f9a003c0-4e53-4be7-829e-e4ced7af42b9" >
+			<when expression='#[vars.serviceType == "routes"]'>
+				<logger level="INFO" doc:name="Logger" doc:id="5c733439-1284-4ddc-b1b0-0f0958de6156" message="----fastGo Routes Flow Called----"/>
+				<flow-ref doc:name="Flow Reference" doc:id="b56d68af-fd94-4d79-8614-a310d600b946" name="fastGo-getRoutes-implementationSub_Flow"/>
+			</when>
+			<when expression='#[vars.serviceType == "schedules"]'>
+				<logger level="INFO" doc:name="Logger" doc:id="83da1ebb-ab45-4c4d-b7d2-7b9f754051e3" message="----fastGo Schedules Flow Called----"/>
+				<flow-ref doc:name="Flow Reference" doc:id="2969d31b-2e1c-4cb9-ace5-ed2ed8c7bc57" name="fastGo-getSchedules-implementationSub_Flow"/>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="a376733b-5eec-4397-899e-2cc990e32959" message="------Send The Correct Service Type---------"/>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="1b18aba5-d769-4935-ab19-489c0eefc1b8" message="-----Response Send for fastGo External System-----"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="4625ee09-1636-4f32-b9db-d1dab43fb02f" >
+				<logger level="INFO" doc:name="Logger" doc:id="9487d972-ab02-4629-93d5-0e41538148f0" message="-----Error Occured for fastGo External System for TransactionId-----#[attributes.headers.transactionId]"/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
